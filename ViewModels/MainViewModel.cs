@@ -192,7 +192,7 @@ namespace CurrencyConverter.ViewModels
                         DateHint = $"Курсы на {SelectedDate:dd.MM.yyyy} не найдены. " +
                                   $"Показаны курсы на {result.actualDate:dd.MM.yyyy}";
                         // Обновляем дату на фактическую
-                        SelectedDate = result.actualDate;
+                        //SelectedDate = result.actualDate;
                     }
 
                     // Обновляем коллекцию валют

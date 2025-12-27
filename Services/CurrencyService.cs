@@ -21,7 +21,7 @@ namespace CurrencyConverter.Services
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://www.cbr-xml-daily.ru/"),
-                Timeout = TimeSpan.FromSeconds(10)
+                //Timeout = TimeSpan.FromSeconds(5)
             };
         }
 
@@ -47,8 +47,6 @@ namespace CurrencyConverter.Services
 
             if (result.response is not null)
             {
-                // Сохраняем в кэш
-                AddToCache(result.actualDate, result.response);
                 return (result.response, date);
             }
 
@@ -58,17 +56,9 @@ namespace CurrencyConverter.Services
                 var checkDate = date.AddDays(-i);
                 result = await TryGetRatesForDateAsync(checkDate);
 
-                // Проверяем кэш для checkDate
-                if (_cache.TryGetValue(checkDate, out cachedResponse))
-                {
-                    Debug.WriteLine($"Кэш найден для даты: {checkDate:yyyy-MM-dd}");
-                    return (cachedResponse, checkDate); 
-                }
-
                 if (result.response is not null)
                 {
                     Debug.WriteLine($"Найдены курсы на {checkDate:yyyy-MM-dd} вместо {date:yyyy-MM-dd}");
-                    AddToCache(checkDate, result.response);
                     return (result.response, checkDate);
                 }
             }
@@ -91,12 +81,15 @@ namespace CurrencyConverter.Services
 
                 if (response is not null)
                 {
-                    // Проверяем, что дата в ответе совпадает с запрошенной
+
                     var responseDate = response.Date.Date;
 
+                    Debug.WriteLine($" responseDate: {responseDate:yyyy-MM-dd} date: {date:yyyy-MM-dd}");
+                    // Проверяем, что дата в ответе совпадает с запрошенной
                     if (responseDate == date)
                     {
                         Debug.WriteLine($" Ответ содержит данные на запрошенную дату {date:yyyy-MM-dd}");
+                        _cache[date] = response;
                         return (response, date);
                     }
                     else
@@ -151,3 +144,5 @@ namespace CurrencyConverter.Services
         }
     }
 }
+
+
