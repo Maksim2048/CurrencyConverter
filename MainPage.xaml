@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CurrencyConverter.ViewModels"
+             xmlns:models="clr-namespace:CurrencyConverter.Models"
+             xmlns:converters="clr-namespace:CurrencyConverter.Converters"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             x:Class="CurrencyConverter.MainPage"
+             x:DataType="local:MainViewModel"
+             Title="Конвертер валют">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Для инверсии значения -->
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <!-- Чтобы подсказка не отображалась постоянно -->
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.BindingContext>
+        <local:MainViewModel />
+    </ContentPage.BindingContext>
+
+    <!-- Основной контейнер -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="20">
+
+            <!-- Заголовок -->
+            <Label Text="Конвертер валют"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#2C3E50"/>
+
+            <!-- Выбор даты -->
+            <Border Stroke="#E9ECEF"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 15"
+                    Background="#F8F9FA"
+                    Padding="20">
+
+
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="📅 Дата курса валют"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#495057"/>
+
+                    
+                    <DatePicker Date="{Binding SelectedDate}"
+                               Format="dd.MM.yyyy"
+                               MaximumDate="{x:Static sys:DateTime.Today}"
+                               TextColor="#212529"
+                               FontSize="16"/>
+
+                    <!-- Подсказка о дате -->
+                    <Label Text="{Binding DateHint}"
+                           FontSize="13"
+                           TextColor="#6C757D"
+                           IsVisible="{Binding DateHint, Converter={StaticResource StringToBoolConverter}}"/>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Исходная валюта -->
+            <Border Stroke="#E9ECEF"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 15"
+                    Background="#F8F9FA"
+                    Padding="20">
+
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Из валюты"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#495057"/>
+
+                    <!-- Picker с привязкой к списку Currencies -->
+                    <Picker ItemsSource="{Binding Currencies}"
+                           SelectedItem="{Binding SelectedFromCurrency}"
+                           ItemDisplayBinding="{Binding DisplayText}"
+                           Title="Выберите валюту"
+                           FontSize="16"
+                           TextColor="#212529"
+                           IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"/>
+
+                    <!-- Поле ввода суммы -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Сумма для конвертации"
+                               FontSize="14"
+                               TextColor="#6C757D"/>
+
+                        <Entry Keyboard="Numeric"
+                               Text="{Binding Amount}"
+                               Placeholder="0.00"
+                               FontSize="18"
+                               TextColor="#212529"
+                               BackgroundColor="White"
+                               IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Кнопка обмена валют -->
+            <Button Text="Поменять валюты местами"
+                   Command="{Binding SwapCurrenciesCommand}"
+                   BackgroundColor="#3498DB"
+                   TextColor="White"
+                   FontSize="16"
+                   CornerRadius="10"
+                   HeightRequest="50"
+                   HorizontalOptions="Fill"
+                   Margin="0,10"
+                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"/>
+
+            <!-- Блок Целевая валюта -->
+            <Border Stroke="#E9ECEF"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 15"
+                    Background="#F8F9FA"
+                    Padding="20">
+
+
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="В валюту"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#495057"/>
+
+                    <!-- Picker для целевой валюты -->
+                    <Picker ItemsSource="{Binding Currencies}"
+                           SelectedItem="{Binding SelectedToCurrency}"
+                           ItemDisplayBinding="{Binding DisplayText}"
+                           Title="Выберите валюту"
+                           FontSize="16"
+                           TextColor="#212529"
+                           IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"/>
+
+                    <!-- Результат конвертации -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Результат конвертации"
+                               FontSize="14"
+                               TextColor="#6C757D"/>
+
+                        <Border Background="#E8F4FD"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="15">
+
+                            <Label Text="{Binding ConvertedAmount, StringFormat='{0:F2}'}"
+                                   FontSize="32"
+                                   FontAttributes="Bold"
+                                   TextColor="#2980B9"
+                                   HorizontalOptions="Center"/>
+
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Индикатор загрузки -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                              IsVisible="{Binding IsLoading}"
+                              Color="#3498DB"
+                              HorizontalOptions="Center"
+                              VerticalOptions="Center"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
